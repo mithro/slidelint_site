@@ -1,0 +1,31 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <!-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> -->
+    <h4 class="modal-title">
+    Please wait, your presentation is being processed</h4>
+  </div>
+  <div class="modal-body">
+    <div class="{{upload_file_info.uploading_progress!=100 && 'lead text-primary' || 'text-muted'}}">
+      Uploading in progress:
+      <div class="progress progress-striped {{upload_file_info.uploading_progress==100 && 'mutted' || 'active'}}">
+        <div class="progress-bar upload-progressbar"
+             role="progressbar"
+             aria-valuenow="{{upload_file_info.uploading_progress}}"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             style="width: {{upload_file_info.uploading_progress}}%;">
+        </div>
+      </div>
+    </div>
+    <div class="{{upload_file_info.uploading_progress==100 && 'lead text-primary' || 'text-muted'}}">
+      <div>
+        <p>
+          {{uploading_complete}}
+          <img ng-show="upload_file_info.uploading_progress==100" src="/static/img/wait-animated.gif"/>
+          <img ng-show="upload_file_info.uploading_progress!=100" src="/static/img/wait-static.gif"/>
+          Presentation checking may take a while, be patient...
+        </p>
+      </div>
+    </div>
+  </div>
+</div><!-- /.modal-content -->
