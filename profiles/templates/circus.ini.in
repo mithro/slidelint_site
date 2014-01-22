@@ -1,0 +1,7 @@
+[watcher:worker]
+cmd = ${worker} ${collector_chanel} ${producer_chanel} --slidelint=${slidelint_location}
+numprocesses = 2
+
+[watcher:site]
+cmd = ${buildout_dir}/bin/pserve ${buildout_dir}/.instance.ini
+numprocesses = 1
