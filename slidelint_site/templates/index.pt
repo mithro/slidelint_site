@@ -131,6 +131,11 @@
           </p>
         </h1>
 
+        <div class="row col-md-offset-2" ng-show="!(results.length || error)">
+          <div ng-repeat="icon in icons" class="col-md-5 slide-rez">
+              <img src='data:image/jpeg;base64,{{icon}}' />
+          </div>
+        </div>
 
 
         <div class="text-left" ng-repeat="slide_result in results" ng-show="!(error)">
