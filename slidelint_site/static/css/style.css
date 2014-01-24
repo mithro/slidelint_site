@@ -51,7 +51,8 @@
 .info {
   border: 0;
   border-top: 2px solid #000;
-  padding-top: 10px;
+  padding-top: 5px;
+  margin-top: 10px;
 }
 
 .file-upload {
