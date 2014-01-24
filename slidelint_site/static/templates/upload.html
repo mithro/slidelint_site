@@ -1,0 +1,75 @@
+<div id="upload_form">
+  <div class="row">
+    <div id="logo">
+        <a href="/">
+            <img src="/static/img/logo.png"
+                 alt="Slidelint" />
+        </a>
+    </div>
+  </div>
+
+
+
+  <div class="row">
+    <div class="tagline">
+        <h1>
+          <b>check presentation's common problems on-line</b>
+        </h1>
+        <h2>
+          Checked over ${count} presentations!
+        </h2>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="pull-right">
+        <a class='btn btn-upload' href='javascript:;'>
+          Check your presentation
+          <input type="file"
+                 class="file-upload"
+                 name="file_source"
+                 ng-file-select="onFileSelect($files)">
+        </a>
+      </div>
+    </div>
+    <div class="col-md-2 pull-left text-left">
+      <div class="radio">
+        <label>
+          <input type="radio" name="rulesset" id="simple" ng-model="check_rule" value="simple" checked>
+            Simple
+        </label>
+      </div>
+      <div class="radio">
+        <label>
+          <input type="radio" name="rulesset" id="strict" ng-model="check_rule" value="strict">
+            Strict
+        </label>
+      </div>
+      <!-- <div class="radio">
+        <label>
+          <input type="radio" name="rulesset" id="custom" ng-model="check_rule" value="custom">
+            Custom
+        </label>
+      </div> -->
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3 text-left info">
+      <p>
+        Slidelint - A slide smell checker. Reads PDF presentation 
+        slides and checks common problems, outputs summary report
+        on the problems.
+      </p>
+      Presentation slides will be run against the following set of checks:
+      <ul>
+        <li>Contrast of text color to background</li>
+        <li>Language tool grammar checker</li>
+        <li>Gendered pronouns</li>
+        <li>Edges danger zones</li>
+        <li>Text font size</li>
+      </ul>
+    </div>
+  </div>
+</div>

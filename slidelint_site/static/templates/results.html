@@ -1,0 +1,62 @@
+
+<div class="row results">
+
+  <div class="row">
+    <div class="col-md-offset-2 col-md-2">
+        <div class="pull-right logo-small"
+             ng-click="show_upload()">
+            <img src="/static/img/logo-small.png"
+                 alt="Slidelint" />
+        </div>
+    </div>
+    <div class="col-md-7 text-left">
+      <h1>
+        Thanks for using slidelint!
+      </h1>
+      <p>To get more information about message move cursor over it.</p>
+    </div>
+  </div>
+
+
+  <div class="col-md-10 col-md-offset-1">
+
+    <h1>
+      <p class="text-centre text-danger" ng-show="error">
+        {{error}}
+      </p>
+      <p class="text-centre text-success" ng-show="!(results.length || error)">
+        Great work! No issues were found!
+      </p>
+    </h1>
+
+    <div class="row col-md-offset-2" ng-show="!(results.length || error)">
+      <div ng-repeat="icon in icons" class="col-md-5 slide-rez">
+          <img src='data:image/jpeg;base64,{{icon}}' />
+      </div>
+    </div>
+
+
+    <div class="text-left" ng-repeat="slide_result in results" ng-show="!(error)">
+      <div class="row slide-rez">
+        <div class="col-md-4">
+          <img src='data:image/jpeg;base64,{{icons[slide_result.page]}}' />
+        </div>
+        <div class="col-md-8">
+          <ul>
+            <span ng-repeat="error in slide_result.results" class="row">
+              <li class="col-md-6 upping"
+                  popover="{{error.help}}"
+                  popover-placement="right"
+                  popover-trigger="mouseenter"
+                  popover-title="{{error.id}}: {{error.msg_name}}">
+                {{error.msg}}
+              </li>
+            </span>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
