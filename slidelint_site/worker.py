@@ -16,7 +16,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-MESSAGE_FOR_SLIDELINT_EXCEPTION = 'slidelint was not able to check presentation'
+MESSAGE_FOR_SLIDELINT_EXCEPTION = \
+    'slidelint was not able to check presentation'
 MESSAGE_FOR_TIMEOUT_EXCEPTION = 'It take to long to check your presentation...'
 MESSAGE_FOR_UNEXPECTED_EXCEPTION = 'ups something went wrong'
 
@@ -120,7 +121,11 @@ def peform_slides_linting(presentation_path, config_path=None,
     return grouped_by_page
 
 
-def worker(producer_chanel, collector_chanel, slidelint_path):
+def worker(
+        producer_chanel,
+        collector_chanel,
+        slidelint_path,
+        one_time_worker=False):
     """
     receives jobs and perform slides linting
     """
@@ -172,6 +177,10 @@ def worker(producer_chanel, collector_chanel, slidelint_path):
             consumer_sender.send_json(result)
             logging.debug("cleanup for job with uid '%s'" % job['uid'])
             remove_parrent_folder(job['file_path'])
+            if one_time_worker:
+                logging.info("worker exiting")
+                import sys
+                sys.exit()
 
 
 def worker_cli():
@@ -188,9 +197,13 @@ def worker_cli():
 
     Options:
       -h --help     Show this screen.
+      --onetime  throw worker after it has completed a job
       --slidelint=<slidelint> -s <slidelint>   Path to slidelint executable
                                                [default: slidelint]
+
     """
     from docopt import docopt
     args = docopt(worker_cli.__doc__)
-    worker(args['PRODUCER'], args['COLLECTOR'], args['--slidelint'])
+    worker(
+        args['PRODUCER'], args['COLLECTOR'],
+        args['--slidelint'], args['--onetime'])
