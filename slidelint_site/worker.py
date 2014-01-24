@@ -16,12 +16,9 @@ logging.basicConfig(level=logging.DEBUG)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-
-class SlidelintExeption(Exception):
-    """
-    Maker for SlideLint errors
-    """
-    pass
+MESSAGE_FOR_SLIDELINT_EXCEPTION = 'slidelint was not able to check presentation'
+MESSAGE_FOR_TIMEOUT_EXCEPTION = 'It take to long to check your presentation...'
+MESSAGE_FOR_UNEXPECTED_EXCEPTION = 'ups something went wrong'
 
 
 def remove_parrent_folder(file_path):
@@ -106,11 +103,10 @@ def peform_slides_linting(presentation_path, config_path=None,
         cmd.append('--config=%s' % config_path)
     cmd.append(presentation_path)
 
-    # running slidelint checking against presentation
-    retcode = subprocess.call(cmd, timeout=timeout)
-    if retcode != 0:
-        # we won't keep silence about errors
-        raise SlidelintExeption('ups, "%s" return %s code' % (cmd, retcode))
+    # Running slidelint checking against presentation.
+    # subprocess.check_call will raise CalledProcessError
+    # if return code was not zero and we will handle it at parent function
+    subprocess.check_call(" ".join(cmd), shell=True, timeout=timeout)
 
     # getting checking result and grouping them by pages
     results = json.load(open(results_path, 'r'))
@@ -155,16 +151,23 @@ def worker(producer_chanel, collector_chanel, slidelint_path):
             result['icons'] = icons
             result['status_code'] = 200
             logging.debug("successfully checked uid '%s'" % job['uid'])
-        except SlidelintExeption:
+        except subprocess.CalledProcessError as exp:
             logging.error(
-                "slidelint died while working with uid '%s'" % job['uid'])
+                "slidelint died while working with uid '%s':\n%s",
+                job['uid'], exp)
             result['status_code'] = 500
-            result['result'] = 'slidelint was not able to check presentation'
+            result['result'] = MESSAGE_FOR_SLIDELINT_EXCEPTION
+        except subprocess.TimeoutExpired as exp:
+            logging.error(
+                "slidelint died while working with uid '%s':\n%s",
+                job['uid'], exp)
+            result['status_code'] = 500
+            result['result'] = MESSAGE_FOR_TIMEOUT_EXCEPTION
         except Exception as exp:
             logging.error(
                 "something went wrong with uid '%s' - '%s'", job['uid'], exp)
             result['status_code'] = 500
-            result['result'] = "ups something went wrong"
+            result['result'] = MESSAGE_FOR_UNEXPECTED_EXCEPTION
         finally:
             consumer_sender.send_json(result)
             logging.debug("cleanup for job with uid '%s'" % job['uid'])
