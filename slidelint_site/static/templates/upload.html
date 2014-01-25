@@ -24,13 +24,18 @@
   <div class="row">
     <div class="col-md-8">
       <div class="pull-right">
-        <a class='btn btn-upload' href='javascript:;'>
-          Check your presentation
-          <input type="file"
-                 class="file-upload"
-                 name="file_source"
-                 ng-file-select="onFileSelect($files)">
-        </a>
+        <div class="row">
+          <a class='btn btn-upload' href='javascript:;'>
+            Check your presentation
+            <input type="file"
+                   class="file-upload"
+                   name="file_source"
+                   ng-file-select="onFileSelect($files)">
+          </a>
+        </div>
+        <div class="row alert-danger">
+          {{validation_error}}
+        </div>
       </div>
     </div>
     <div class="col-md-2 pull-left text-left">

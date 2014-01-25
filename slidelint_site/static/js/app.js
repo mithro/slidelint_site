@@ -4,6 +4,7 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
   function($scope, $upload, $http, $timeout, $modal) {
   $scope.state = 'upload';
   $scope.check_rule = 'simple';
+  $scope.validation_error = null;
   $scope.job_uid = false;
   $scope.error = false;
   $scope.results = [];
@@ -44,7 +45,6 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
     //$files: an array of files selected, each file has name, size, and type.
     for (var i = 0; i < $files.length; i++) {
       var file = $files[i];
-      $scope.state = 'progress';
       $scope.upload = $upload.upload({
         url: '/upload',
         // method: POST or PUT,
@@ -64,10 +64,10 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
         uid = data.uid;
         rez_status = data.status;
         $scope.job_uid = uid;
-        console.log(data);
-      });
-      //.error(...)
-      //.then(success, error, progress);
+        $scope.state = 'progress';
+      }).error(function(data, status, headers, config) {
+         $scope.validation_error = data.error;
+      }).then(success, error, progress);
     }
   };
 
