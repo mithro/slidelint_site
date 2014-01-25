@@ -1,6 +1,7 @@
 """
 Module with views for slidelint site.
 """
+import os
 from pyramid.view import view_config
 
 import logging
@@ -16,18 +17,54 @@ def main_view(context, _):
     return {'count': context.count}
 
 
+def validate_rule(rule):
+    """ Validator for checking rules """
+    if rule not in ('simple', 'strict'):
+        return {'error': 'check_rule in not present in Post data'}
+
+
+def validate_upload_file(upload_file, max_allowed_size=15000000):
+    """ Validator for file. Its checks file's type and size."""
+    if upload_file is None:
+        return {'error': 'file in not present in Post data'}
+    fileobj = getattr(upload_file, 'file', None)
+    if not fileobj:
+        return {'error': 'file object is not present in posted data'}
+    if not upload_file.filename.endswith('.pdf'):
+        return {'error': 'file type is wrong - only PDF files are allowed'}
+    if upload_file.type != 'application/pdf':
+        return {'error': 'file type is not application/pdf'}
+    fileobj.seek(0, os.SEEK_END)
+    size = fileobj.tell()
+    if size > max_allowed_size:
+        return {
+            'error': 'file is too large, its size'
+                     ' %s, but max allowed size is %s' % (size,
+                                                          max_allowed_size)}
+
+
 @view_config(route_name='upload', request_method='POST', renderer="json")
 def upload_view(request):
     """
     upload view - adds new job to the queue
     """
-    if 'check_rule' not in request.POST:
-        return {'error': 'check_rule in not present in Post data'}
-    if 'file' not in request.POST:
-        return {'error': 'file in not present in Post data'}
-    jobs_manager = request.registry.settings['jobs_manager']
-    info = jobs_manager.add_new_job(
-        request.POST['file'].file, request.POST['check_rule'])
+    settings = request.registry.settings
+
+    rule = request.POST.get('check_rule', None)
+    validation_error = validate_rule(rule)
+    if validation_error:
+        request.response.status_code = 400
+        return validation_error
+
+    max_allowed_size = int(settings.get('max_allowed_size', 15000000))
+    upload_file = request.POST.get('file', None)
+    validation_error = validate_upload_file(upload_file, max_allowed_size)
+    if validation_error:
+        request.response.status_code = 400
+        return validation_error
+
+    jobs_manager = settings['jobs_manager']
+    info = jobs_manager.add_new_job(upload_file.file, rule)
     request.response.status_code = info.pop('status_code')
     return info
 
