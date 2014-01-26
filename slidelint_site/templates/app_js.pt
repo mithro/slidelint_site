@@ -1,5 +1,12 @@
 LinterApp = angular.module('LinterApp', ['angularFileUpload', 'ui.bootstrap']);
 
+function bytesToSize(bytes) {
+   var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+   if (bytes == 0) return '0 Bytes';
+   var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+   return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+};
+
 var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
   function($scope, $upload, $http, $timeout, $modal) {
   $scope.state = 'upload';
@@ -8,6 +15,7 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
   $scope.job_uid = false;
   $scope.error = false;
   $scope.results = [];
+  $scope.max_allowed_size = ${max_allowed_size};
   $scope.show_upload = function(){
     $scope.state = 'upload';
   }
@@ -45,6 +53,17 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
     //$files: an array of files selected, each file has name, size, and type.
     for (var i = 0; i < $files.length; i++) {
       var file = $files[i];
+      if (file.type != 'application/pdf'){
+        $scope.validation_error = 'file type is wrong - only PDF files are allowed';
+        return;
+      };
+      if (file.size > $scope.max_allowed_size){
+        $scope.validation_error = 'file is too large, its size ';
+        $scope.validation_error += bytesToSize(file.size);
+        $scope.validation_error += ', but max allowed size is ';
+        $scope.validation_error += bytesToSize($scope.max_allowed_size);
+        return;
+      };
       $scope.upload = $upload.upload({
         url: '/upload',
         // method: POST or PUT,

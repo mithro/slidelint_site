@@ -1,8 +1,8 @@
 """
 Module with views for slidelint site.
 """
-import os
 from pyramid.view import view_config
+from hurry.filesize import size
 
 import logging
 LOGGER = logging.getLogger(__name__)
@@ -34,13 +34,16 @@ def validate_upload_file(upload_file, max_allowed_size=15000000):
         return {'error': 'file type is wrong - only PDF files are allowed'}
     if upload_file.type != 'application/pdf':
         return {'error': 'file type is not application/pdf'}
-    fileobj.seek(0, os.SEEK_END)
-    size = fileobj.tell()
-    if size > max_allowed_size:
+
+    # reading from file (uploading) a little bit more than is allowed
+    fileobj.read(max_allowed_size+10)
+    # getting cursor position (file size)
+    file_size = fileobj.tell()
+    fileobj.seek(0)
+    if file_size > max_allowed_size:
         return {
-            'error': 'file is too large, its size'
-                     ' %s, but max allowed size is %s' % (size,
-                                                          max_allowed_size)}
+            'error': 'File is too large, the max allowed file size to upload '
+                     'is %s' % size(max_allowed_size)}
 
 
 @view_config(route_name='upload', request_method='POST', renderer="json")
@@ -87,3 +90,15 @@ def results_view(request):
         return {'result': result, 'icons': icons}
     request.response.status_code = 404
     return {'msg': 'job "%s" was not found in results' % uid}
+
+
+@view_config(route_name='app_js', renderer='templates/app_js.pt')
+def app_js(request):
+    """
+    pass to app.js some arguments, like file size or number
+    of checked presentations
+    """
+    request.response.content_type = 'text/javascript'
+    settings = request.registry.settings
+    max_allowed_size = int(settings.get('max_allowed_size', 15000000))
+    return {'max_allowed_size': max_allowed_size}

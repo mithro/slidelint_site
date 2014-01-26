@@ -19,6 +19,7 @@ requires = [
     'chaussette',
     'docopt',
     'pyzmq',
+    'hurry.filesize',
     ]
 
 tests_requires = [

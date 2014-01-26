@@ -17,7 +17,8 @@
   <script src="${request.static_url('slidelint_site:static/js/angular-file-upload.min.js')}"></script>
   <!-- <script src="${request.static_url('slidelint_site:static/js/ui-bootstrap-tpls-0.8.0-SNAPSHOT.min.js')}"></script> -->
   <script src="${request.static_url('slidelint_site:static/js/ui-bootstrap-tpls-0.9.0.js')}"></script>
-  <script src="${request.static_url('slidelint_site:static/js/app.js')}"></script>
+  <!-- <script src="${request.static_url('slidelint_site:static/js/app.js')}"></script> -->
+  <script src="/app.js"></script>
   <!-- <link rel="shortcut icon" href="${request.static_url('slidelint_site:static/favicon.ico')}" /> -->
 </head>
 <body>
