@@ -10,8 +10,10 @@ import json
 import itertools
 import shutil
 import zmq
+from .utils import save_file
 
 import logging
+
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -124,11 +126,22 @@ def peform_slides_linting(presentation_path, config_path=None,
     return grouped_by_page
 
 
+def store_for_debug(msg, job, exp, debug_storage, debug_url):
+    """
+    Save problem presentation for debugging
+    """
+    file_object = open(job['file_path'], 'rb')
+    save_file(file_object, job['uid'], debug_storage)
+    link = "%s/%s/%s" % (debug_url, job['uid'], 'presentation.pdf')
+    logging.error(msg, link, exp)
+
+
 def worker(
         producer_chanel,
         collector_chanel,
         slidelint_path,
         debug_storage,
+        debug_url,
         one_time_worker=False):
     """
     receives jobs and perform slides linting
@@ -147,7 +160,7 @@ def worker(
     while True:
         job = consumer_receiver.recv_json()
         logging.debug("new job with uid '%s'" % job['uid'])
-        result = {'uid': job['uid']}
+        result = {'uid': job['uid'], 'status_code': 500}
         try:
             config_file = SLIDELINT_CONFIG_FILES_MAPPING.get(
                 job['checking_rule'], None)
@@ -159,21 +172,19 @@ def worker(
             result['status_code'] = 200
             logging.debug("successfully checked uid '%s'" % job['uid'])
         except subprocess.CalledProcessError as exp:
-            logging.error(
-                "slidelint died while working with uid '%s':\n%s",
-                job['uid'], exp)
-            result['status_code'] = 500
+            store_for_debug(
+                "slidelint died while working on presentation %s:\n%s",
+                job, exp, debug_storage, debug_url)
             result['result'] = MESSAGE_FOR_SLIDELINT_EXCEPTION
         except subprocess.TimeoutExpired as exp:
-            logging.error(
-                "slidelint died while working with uid '%s':\n%s",
-                job['uid'], exp)
-            result['status_code'] = 500
+            store_for_debug(
+                "slidelint died while working on presentation %s:\n%s",
+                job, exp, debug_storage, debug_url)
             result['result'] = MESSAGE_FOR_TIMEOUT_EXCEPTION
         except Exception as exp:
-            logging.error(
-                "something went wrong with uid '%s' - '%s'", job['uid'], exp)
-            result['status_code'] = 500
+            store_for_debug(
+                "something went wrong on presentation %s:\n%s",
+                job, exp, debug_storage, debug_url)
             result['result'] = MESSAGE_FOR_UNEXPECTED_EXCEPTION
         finally:
             consumer_sender.send_json(result)
@@ -203,7 +214,7 @@ def worker_cli():
       --slidelint=<path>  Path to slidelint executable
       --debug_storage=<path>  Directory to save errors debug information
       --onetime           Throw worker after it has completed a job
-
+      --debug_url         Base url to debug information
     """
     import configparser
     from docopt import docopt
@@ -218,4 +229,5 @@ def worker_cli():
     slidelint = args['--slidelint'] or worker_config['slidelint']
     onetime = args['--onetime'] or worker_config['onetime']
     debug_storage = args['--debug_storage'] or worker_config['debug_storage']
-    worker(collector, producer, slidelint, debug_storage, onetime)
+    debug_url = args['--debug_url'] or worker_config['debug_url']
+    worker(collector, producer, slidelint, debug_storage, debug_url, onetime)

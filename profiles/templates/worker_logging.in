@@ -4,6 +4,7 @@ collector=${collector}
 slidelint=${slidelint}
 onetime=${onetime}
 debug_storage=${debug_storage}
+debug_url=${debug_url}
 
 [loggers]
 keys=root

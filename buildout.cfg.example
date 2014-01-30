@@ -6,3 +6,6 @@ extends =
 [mailing_logger_config]
 mailloger_from = notification@example.com
 mailloger_to = manager@example.com
+
+[worker_config]
+debug_url = http://example.com/debug
