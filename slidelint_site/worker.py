@@ -12,7 +12,6 @@ import shutil
 import zmq
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -38,7 +37,7 @@ def file_to_base64(path):
     encode data
     """
     return base64.b64encode(open(path, 'rb').read()).decode("utf-8")
-
+5/0
 
 def get_pdf_file_preview(path, size='300', timeout=600):
     """ Creates pdf file preview - small images of pdf file pages.
@@ -200,10 +199,14 @@ def worker_cli():
       --onetime  throw worker after it has completed a job
       --slidelint=<slidelint> -s <slidelint>   Path to slidelint executable
                                                [default: slidelint]
+      --logger=<path> -l <path>  path to logging configuration file
 
     """
     from docopt import docopt
     args = docopt(worker_cli.__doc__)
+    if args['--logger']:
+        import logging.config as _logging_config
+        _logging_config.fileConfig(args['--logger'])
     worker(
         args['PRODUCER'], args['COLLECTOR'],
         args['--slidelint'], args['--onetime'])

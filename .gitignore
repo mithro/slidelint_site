@@ -45,3 +45,4 @@ var/Data.fs*
 .instance.ini
 circus.ini
 tmp_storage
+worker_logging.conf
