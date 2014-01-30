@@ -1,13 +1,8 @@
 [buildout]
 extends =
 #     profiles/production.cfg
-#    profiles/devel.cfg
+#     profiles/devel.cfg
 
-[instance_config]
-mailloger_host = localhost
+[mailing_logger_config]
 mailloger_from = notification@example.com
 mailloger_to = manager@example.com
-mailloger_subject = SlideLint: Error has occurred
-
-[circus_config]
-slidelint_location = ${slidelint:path}

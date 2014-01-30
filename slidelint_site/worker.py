@@ -20,6 +20,10 @@ MESSAGE_FOR_SLIDELINT_EXCEPTION = \
 MESSAGE_FOR_TIMEOUT_EXCEPTION = 'It take to long to check your presentation...'
 MESSAGE_FOR_UNEXPECTED_EXCEPTION = 'ups something went wrong'
 
+SLIDELINT_CONFIG_FILES_MAPPING = {
+    'simple': os.path.join(HERE, 'slidelint_config_files', 'simple.cfg'),
+    'strict': os.path.join(HERE, 'slidelint_config_files', 'strict.cfg')}
+
 
 def remove_parrent_folder(file_path):
     """
@@ -124,6 +128,7 @@ def worker(
         producer_chanel,
         collector_chanel,
         slidelint_path,
+        debug_storage,
         one_time_worker=False):
     """
     receives jobs and perform slides linting
@@ -135,18 +140,16 @@ def worker(
     # send work
     consumer_sender = context.socket(zmq.PUSH)
     consumer_sender.connect(collector_chanel)
+    logging.info("debug information will be stored into %s", debug_storage)
     logging.info("Worker is started on '%s' for receiving jobs"
-                 "and on '%s' to send results",
+                 " and on '%s' to send results",
                  producer_chanel, collector_chanel)
-    slidelint_config_files_mapping = {
-        'simple': os.path.join(HERE, 'slidelint_config_files', 'simple.cfg'),
-        'strict': os.path.join(HERE, 'slidelint_config_files', 'strict.cfg')}
     while True:
         job = consumer_receiver.recv_json()
         logging.debug("new job with uid '%s'" % job['uid'])
         result = {'uid': job['uid']}
         try:
-            config_file = slidelint_config_files_mapping.get(
+            config_file = SLIDELINT_CONFIG_FILES_MAPPING.get(
                 job['checking_rule'], None)
             slidelint_output = peform_slides_linting(
                 job['file_path'], config_file, slidelint_path)
@@ -187,26 +190,32 @@ def worker_cli():
     Worker for slidelint site
 
     Usage:
-      slidelint_worker PRODUCER COLLECTOR [options]
+      slidelint_worker CONFIG [options]
       slidelint_worker -h | --help
 
     Arguments:
-      PRODUCER    zmq allowed address for jobs producer
-      COLLECTOR   zmq allowed address for results collector
+        CONFIG  Path to slidelint worker configuration file
 
     Options:
-      -h --help     Show this screen.
-      --onetime  throw worker after it has completed a job
-      --slidelint=<slidelint> -s <slidelint>   Path to slidelint executable
-                                               [default: slidelint]
-      --logger=<path> -l <path>  path to logging configuration file
+      -h --help           Show this screen.
+      --producer=<addr>   ZMQ allowed address for jobs producer
+      --collector=<addr>  ZMQ allowed address for results collector
+      --slidelint=<path>  Path to slidelint executable
+      --debug_storage=<path>  Directory to save errors debug information
+      --onetime           Throw worker after it has completed a job
 
     """
+    import configparser
     from docopt import docopt
+    import logging.config as _logging_config
     args = docopt(worker_cli.__doc__)
-    if args['--logger']:
-        import logging.config as _logging_config
-        _logging_config.fileConfig(args['--logger'])
-    worker(
-        args['PRODUCER'], args['COLLECTOR'],
-        args['--slidelint'], args['--onetime'])
+    _logging_config.fileConfig(args['CONFIG'])
+    config = configparser.ConfigParser()
+    config.read(args['CONFIG'])
+    worker_config = config['slidelint_worker']
+    producer = args['--producer'] or worker_config['producer']
+    collector = args['--collector'] or worker_config['collector']
+    slidelint = args['--slidelint'] or worker_config['slidelint']
+    onetime = args['--onetime'] or worker_config['onetime']
+    debug_storage = args['--debug_storage'] or worker_config['debug_storage']
+    worker(collector, producer, slidelint, debug_storage, onetime)

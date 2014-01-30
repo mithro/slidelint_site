@@ -1,5 +1,5 @@
 [watcher:worker]
-cmd = ${worker} ${collector_chanel} ${producer_chanel} --slidelint=${slidelint_location} --onetime --logger=${buildout_dir}/worker_logging.conf
+cmd = ${worker} ${worker_config}
 numprocesses = 6
 
 [watcher:site]
