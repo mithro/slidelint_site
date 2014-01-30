@@ -21,7 +21,7 @@ args=(sys.stdout,)
 class=handlers.SMTPHandler
 level=ERROR
 formatter=simpleFormatter
-args=('${mailloger_host}', '${mailloger_from}', ['${mailloger_to}', ], '${mailloger_subject}', ${mailloger_credentials})
+args=('${mailloger_host}', '${mailloger_from}', ['${mailloger_to}', ], '${mailloger_subject}'${mailloger_credentials})
 
 [formatter_simpleFormatter]
 format=%(asctime)s - %(name)s - %(levelname)s - %(message)s

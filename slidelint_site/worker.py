@@ -37,7 +37,7 @@ def file_to_base64(path):
     encode data
     """
     return base64.b64encode(open(path, 'rb').read()).decode("utf-8")
-5/0
+
 
 def get_pdf_file_preview(path, size='300', timeout=600):
     """ Creates pdf file preview - small images of pdf file pages.
