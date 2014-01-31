@@ -17,9 +17,30 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
   $scope.results = [];
   $scope.max_allowed_size = ${max_allowed_size};
   $scope.count = ${count};
+  $scope.feedback = "";
+  $scope.feedback_status = false;
   $scope.show_upload = function(){
     $scope.state = 'upload';
-  }
+  };
+  $scope.leave_feedback = function(){
+    $scope.feedback = window.document.getElementById('feedback').value;
+    if ($scope.feedback !== ""){
+      $http.post('/feedback', {'uid': $scope.job_uid, 'message': $scope.feedback},
+          {headers: {'Content-Type': 'application/json'}})
+        .success(function(data, status, headers, config) {
+            $scope.feedback_status = "Thanks for feedback!";
+        }).
+        error(function(data, status, headers, config) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          $scope.feedback_status = "Sorry we can't receive your feedback right now..";
+        });
+    }
+    else {
+      $scope.feedback_status = "Please write feedback first";
+    }
+
+  };
   $scope.getResults = function(){
     if ($scope.job_uid !== false){
       $http.post('/results', {'uid': $scope.job_uid},

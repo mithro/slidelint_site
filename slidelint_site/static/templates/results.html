@@ -58,5 +58,27 @@
     </div>
   </div>
 
+</div>
 
+
+<div class="row">
+  <div class="col-md-offset-3 col-md-6">
+    <span
+      ng-show="feedback_status"
+      class="col-md-12 validator-danger">
+      <strong>{{feedback_status}}</strong>
+    </span>
+    <textarea
+      ng-model="feedback"
+      id="feedback"
+      class="nice-yellow col-md-12 textarea-feedback"
+      placeholder="We would be very thankful if you leave a feedback. Please help us make this service better."
+      rows=5></textarea>
+    <button
+      type="button"
+      class="btn-feedback btn btn-lg btn-block"
+      ng-click="leave_feedback()">
+      Leave feedback
+    </button>
+  </div>
 </div>
