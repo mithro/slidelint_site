@@ -2,55 +2,24 @@
 Module with views for slidelint site.
 """
 from pyramid.view import view_config
-from hurry.filesize import size
+from pyramid.renderers import render
+from pyramid.response import Response
+from .validators import validate_rule, validate_upload_file
 
 import logging
 LOGGER = logging.getLogger(__name__)
 
 
-@view_config(context='.models.Counter', renderer='templates/index.pt')
-def main_view(context, _):
+@view_config(context='.models.Counter')
+def main_view(context, request):
     """
     Main site page view. Renders main template with angularjs app.
     It returns to renderer only number of checked presentations
     """
-    return {'count': context.count}
+    if request.method == 'GET':
+        return Response(
+            render('templates/index.pt', {'count': context.count}, request))
 
-
-def validate_rule(rule):
-    """ Validator for checking rules """
-    if rule not in ('simple', 'strict'):
-        return {'error': 'check_rule in not present in Post data'}
-
-
-def validate_upload_file(upload_file, max_allowed_size=15000000):
-    """ Validator for file. Its checks file's type and size."""
-    if upload_file is None:
-        return {'error': 'file in not present in Post data'}
-    fileobj = getattr(upload_file, 'file', None)
-    if not fileobj:
-        return {'error': 'file object is not present in posted data'}
-    if not upload_file.filename.endswith('.pdf'):
-        return {'error': 'file type is wrong - only PDF files are allowed'}
-    if upload_file.type != 'application/pdf':
-        return {'error': 'file type is not application/pdf'}
-
-    # reading from file (uploading) a little bit more than is allowed
-    fileobj.read(max_allowed_size+10)
-    # getting cursor position (file size)
-    file_size = fileobj.tell()
-    fileobj.seek(0)
-    if file_size > max_allowed_size:
-        return {
-            'error': 'File is too large, the max allowed file size to upload '
-                     'is %s' % size(max_allowed_size)}
-
-
-@view_config(route_name='upload', request_method='POST', renderer="json")
-def upload_view(request):
-    """
-    upload view - adds new job to the queue
-    """
     settings = request.registry.settings
 
     rule = request.POST.get('check_rule', None)
@@ -69,7 +38,8 @@ def upload_view(request):
     jobs_manager = settings['jobs_manager']
     info = jobs_manager.add_new_job(upload_file.file, rule)
     request.response.status_code = info.pop('status_code')
-    return info
+    context.increment()
+    return Response(render('json', info, request))
 
 
 @view_config(route_name='results', request_method='POST', renderer="json")
@@ -92,8 +62,9 @@ def results_view(request):
     return {'msg': 'job "%s" was not found in results' % uid}
 
 
-@view_config(route_name='app_js', renderer='templates/app_js.pt')
-def app_js(request):
+@view_config(
+    name='app.js', context='.models.Counter', renderer='templates/app_js.pt')
+def app_js(context, request):
     """
     pass to app.js some arguments, like file size or number
     of checked presentations
@@ -101,4 +72,4 @@ def app_js(request):
     request.response.content_type = 'text/javascript'
     settings = request.registry.settings
     max_allowed_size = int(settings.get('max_allowed_size', 15000000))
-    return {'max_allowed_size': max_allowed_size}
+    return {'max_allowed_size': max_allowed_size, 'count': context.count}

@@ -26,9 +26,9 @@ def main(global_config, **settings):  # pylint: disable=W0613
         settings['storage_dir'])
     config.registry.settings['jobs_manager'] = jobs_manager
 
-    config.add_route('upload', '/upload')
+    # config.add_route('upload', '/upload')
     config.add_route('results', '/results')
-    config.add_route('app_js', '/app.js')
+    # config.add_route('app_js', '/app.js')
     config.add_static_view('static', 'static', cache_max_age=3600)
     config.add_static_view('/debug', settings['debug_storage'])
     config.scan()

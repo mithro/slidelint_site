@@ -16,6 +16,7 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
   $scope.error = false;
   $scope.results = [];
   $scope.max_allowed_size = ${max_allowed_size};
+  $scope.count = ${count};
   $scope.show_upload = function(){
     $scope.state = 'upload';
   }
@@ -65,7 +66,7 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
         return;
       };
       $scope.upload = $upload.upload({
-        url: '/upload',
+        url: '/',
         // method: POST or PUT,
         // headers: {'headerKey': 'headerValue'}, withCredential: true,
         data: {check_rule: $scope.check_rule},
