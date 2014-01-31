@@ -18,9 +18,11 @@ import logging
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 MESSAGE_FOR_SLIDELINT_EXCEPTION = \
-    'slidelint was not able to check presentation'
-MESSAGE_FOR_TIMEOUT_EXCEPTION = 'It take to long to check your presentation...'
-MESSAGE_FOR_UNEXPECTED_EXCEPTION = 'ups something went wrong'
+    'Sorry, slidelint was not able to check your presentation...'
+MESSAGE_FOR_TIMEOUT_EXCEPTION = \
+    'Presentation checking take too long...'
+MESSAGE_FOR_UNEXPECTED_EXCEPTION = \
+    'Sorry, but our service has failed to check your presentation.'
 
 SLIDELINT_CONFIG_FILES_MAPPING = {
     'simple': os.path.join(HERE, 'slidelint_config_files', 'simple.cfg'),
@@ -121,10 +123,12 @@ def peform_slides_linting(presentation_path, config_path=None,
     except subprocess.TimeoutExpired:
         process.kill()
         _, errs = process.communicate()
-        raise IOError("Program failed to finish within %s seconds!" % timeout)
+        raise TimeoutError(
+            "Program failed to finish within %s seconds!" % timeout)
     if process.returncode != 0:
-        raise IOError("The command: '%s' died with the following traceback"
-                      ":\n\n%s" % (" ".join(cmd), errs))
+        raise RuntimeError(
+            "The command: '%s' died with the following traceback"
+            ":\n\n%s" % (" ".join(cmd), errs))
 
     # getting checking result and grouping them by pages
     results = json.load(open(results_path, 'r'))
@@ -185,13 +189,13 @@ def worker(
             result['icons'] = icons
             result['status_code'] = 200
             logging.debug("successfully checked uid '%s'" % job['uid'])
-        except subprocess.CalledProcessError as exp:
+        except RuntimeError as exp:
             store_for_debug(job, exp, debug_storage, debug_url)
             result['result'] = MESSAGE_FOR_SLIDELINT_EXCEPTION
-        except subprocess.TimeoutExpired as exp:
+        except TimeoutError as exp:
             store_for_debug(job, exp, debug_storage, debug_url)
             result['result'] = MESSAGE_FOR_TIMEOUT_EXCEPTION
-        except Exception as exp:
+        except BaseException as exp:
             store_for_debug(job, exp, debug_storage, debug_url)
             result['result'] = MESSAGE_FOR_UNEXPECTED_EXCEPTION
         finally:
