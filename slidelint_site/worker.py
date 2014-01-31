@@ -110,9 +110,21 @@ def peform_slides_linting(presentation_path, config_path=None,
     cmd.append(presentation_path)
 
     # Running slidelint checking against presentation.
-    # subprocess.check_call will raise CalledProcessError
-    # if return code was not zero and we will handle it at parent function
-    subprocess.check_call(" ".join(cmd), shell=True, timeout=timeout)
+    process = subprocess.Popen(
+        cmd,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True,)
+    try:
+        _, errs = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        _, errs = process.communicate()
+        raise IOError("Program failed to finish within %s seconds!" % timeout)
+    if process.returncode != 0:
+        raise IOError("The command: '%s' died with the following traceback"
+                      ":\n\n%s" % (" ".join(cmd), errs))
 
     # getting checking result and grouping them by pages
     results = json.load(open(results_path, 'r'))
@@ -126,10 +138,12 @@ def peform_slides_linting(presentation_path, config_path=None,
     return grouped_by_page
 
 
-def store_for_debug(msg, job, exp, debug_storage, debug_url):
+def store_for_debug(job, exp, debug_storage, debug_url):
     """
     Save problem presentation for debugging
     """
+    msg = "Slidelint process died while trying to check presentation. You can"\
+          " access this presentation by link %s. %s"
     file_object = open(job['file_path'], 'rb')
     save_file(file_object, job['uid'], debug_storage)
     link = "%s/%s/%s" % (debug_url, job['uid'], 'presentation.pdf')
@@ -172,19 +186,13 @@ def worker(
             result['status_code'] = 200
             logging.debug("successfully checked uid '%s'" % job['uid'])
         except subprocess.CalledProcessError as exp:
-            store_for_debug(
-                "slidelint died while working on presentation %s:\n%s",
-                job, exp, debug_storage, debug_url)
+            store_for_debug(job, exp, debug_storage, debug_url)
             result['result'] = MESSAGE_FOR_SLIDELINT_EXCEPTION
         except subprocess.TimeoutExpired as exp:
-            store_for_debug(
-                "slidelint died while working on presentation %s:\n%s",
-                job, exp, debug_storage, debug_url)
+            store_for_debug(job, exp, debug_storage, debug_url)
             result['result'] = MESSAGE_FOR_TIMEOUT_EXCEPTION
         except Exception as exp:
-            store_for_debug(
-                "something went wrong on presentation %s:\n%s",
-                job, exp, debug_storage, debug_url)
+            store_for_debug(job, exp, debug_storage, debug_url)
             result['result'] = MESSAGE_FOR_UNEXPECTED_EXCEPTION
         finally:
             consumer_sender.send_json(result)
