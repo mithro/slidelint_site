@@ -20,7 +20,7 @@ def feedback(request):
     """
     mgs = request.json_body.get('message', None)
     uid = request.json_body.get('uid', '')
-    if not mgs or uid:
+    if not mgs:
         request.response.status_code = 400
         return {'error': 'you should provide message and job uid'}
 
@@ -28,11 +28,10 @@ def feedback(request):
     settings = request.registry.settings
 
     body = "Job id: %s\nFeedback text:\n%s" % (uid, mgs)
-
     message = Message(
         subject=settings['mail.subject'],
         sender=settings['mail.sender'],
-        recipients=settings['mail.recipients'],
+        recipients=settings['mail.recipients'].split(','),
         body=body)
     mailer.send(message)
     transaction.commit()

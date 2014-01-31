@@ -13,6 +13,7 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
   $scope.check_rule = 'simple';
   $scope.validation_error = null;
   $scope.job_uid = false;
+  $scope.done = false;
   $scope.error = false;
   $scope.results = [];
   $scope.max_allowed_size = ${max_allowed_size};
@@ -20,6 +21,11 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
   $scope.feedback = "";
   $scope.feedback_status = false;
   $scope.show_upload = function(){
+    $scope.job_uid = false;
+    $scope.uploading_progress = 0;
+    $scope.done = false;
+    $scope.feedback = "";
+    $scope.feedback_status = false;
     $scope.state = 'upload';
   };
   $scope.leave_feedback = function(){
@@ -42,24 +48,22 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
 
   };
   $scope.getResults = function(){
-    if ($scope.job_uid !== false){
+    if ($scope.done === false){
       $http.post('/results', {'uid': $scope.job_uid},
           {headers: {'Content-Type': 'application/json'}})
         .success(function(data, status, headers, config) {
-            $scope.job_uid = false;
-            $scope.uploading_progress = 0;
             $scope.icons = data.icons;
             $scope.results = data.result;
             $scope.state = 'results';
+            $scope.done = true;
         }).
         error(function(data, status, headers, config) {
           // called asynchronously if an error occurs
           // or server returns response with an error status.
           if (status === 500) {
-              $scope.job_uid = false;
-              $scope.uploading_progress = 0;
               $scope.error = data.result;
               $scope.state = 'results';
+              $scope.done = true;
           };
         });
     };
