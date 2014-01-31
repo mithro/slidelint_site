@@ -46,3 +46,4 @@ var/Data.fs*
 circus.ini
 tmp_storage
 worker_logging.conf
+buildout.cfg
