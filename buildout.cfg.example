@@ -3,7 +3,7 @@ extends =
 #     profiles/production.cfg
 #     profiles/devel.cfg
 
-[mailing_logger_config]
+[mailing_config]
 mailloger_from = notification@example.com
 mailloger_to = manager@example.com
 

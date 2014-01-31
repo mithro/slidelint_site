@@ -15,6 +15,7 @@ requires = [
     'pyramid_tm',
     'pyramid_zodbconn',
     'transaction',
+    'pyramid_mailer',
     'ZODB',
     'chaussette',
     'docopt',
