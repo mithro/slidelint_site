@@ -48,7 +48,7 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
 
   };
   $scope.getResults = function(){
-    if ($scope.done === false){
+    if (!$scope.done && $scope.job_uid){
       $http.post('/results', {'uid': $scope.job_uid},
           {headers: {'Content-Type': 'application/json'}})
         .success(function(data, status, headers, config) {
@@ -76,19 +76,19 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
   };
   $scope.intervalFunction();
   $scope.onFileSelect = function($files) {
-    //$files: an array of files selected, each file has name, size, and type.
+    // $files: an array of files selected, each file has name, size, and type.
     for (var i = 0; i < $files.length; i++) {
       var file = $files[i];
-      if (file.type != 'application/pdf'){
-        $scope.validation_error = 'file type is wrong - only PDF files are allowed';
-        return;
-      };
       if (file.size > $scope.max_allowed_size){
         $scope.validation_error = 'file is too large, its size ';
         $scope.validation_error += bytesToSize(file.size);
         $scope.validation_error += ', but max allowed size is ';
         $scope.validation_error += bytesToSize($scope.max_allowed_size);
-        return;
+        return
+      };
+      if (file.type != 'application/pdf'){
+        $scope.validation_error = 'file type is wrong - only PDF files are allowed';
+        return
       };
       $scope.upload = $upload.upload({
         url: '/',
@@ -112,7 +112,7 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
         $scope.state = 'progress';
       }).error(function(data, status, headers, config) {
          $scope.validation_error = data.error;
-      }).then(success, error, progress);
+      });
     }
   };
 

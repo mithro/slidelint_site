@@ -31,7 +31,7 @@
 
     <div class="row col-md-offset-2" ng-show="!(results.length || error)">
       <div ng-repeat="icon in icons" class="col-md-5 slide-rez">
-          <img src='data:image/jpeg;base64,{{icon}}' />
+          <img ng-src='data:image/jpeg;base64,{{icon}}' />
       </div>
     </div>
 
@@ -39,7 +39,7 @@
     <div class="text-left" ng-repeat="slide_result in results" ng-show="!(error)">
       <div class="row slide-rez">
         <div class="col-md-4">
-          <img src='data:image/jpeg;base64,{{icons[slide_result.page]}}' />
+          <img ng-src='data:image/jpeg;base64,{{icons[slide_result.page]}}' />
         </div>
         <div class="col-md-8">
           <ul>
