@@ -90,6 +90,7 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
         $scope.validation_error = 'file type is wrong - only PDF files are allowed';
         return
       };
+      $scope.state = 'progress';
       $scope.upload = $upload.upload({
         url: '/',
         // method: POST or PUT,
@@ -109,7 +110,6 @@ var LinterCtrl = ['$scope', '$upload', '$http', '$timeout', '$modal',
         uid = data.uid;
         rez_status = data.status;
         $scope.job_uid = uid;
-        $scope.state = 'progress';
       }).error(function(data, status, headers, config) {
          $scope.validation_error = data.error;
       });
