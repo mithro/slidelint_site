@@ -20,6 +20,7 @@ def main(global_config, **settings):  # pylint: disable=W0613
     This function returns a Pyramid WSGI application.
     """
     config = Configurator(root_factory=root_factory, settings=settings)
+    config.include('pyramid_chameleon')
     jobs_manager = JobsManager(
         settings['collector_chanel'],
         settings['producer_chanel'],
