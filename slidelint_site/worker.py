@@ -11,6 +11,7 @@ import itertools
 import shutil
 import zmq
 from .utils import save_file
+from shlex import split
 
 import logging
 
@@ -59,11 +60,15 @@ def get_pdf_file_preview(path, size='300', timeout=600):
 
     """
     # making base name for preview images
-    dist = path.rsplit(os.path.sep, 1)[0]
+    dist, file_name = path.rsplit(os.path.sep, 1)
     images_base_name = os.path.join(dist, 'preview-page')
 
     # transforming pdf file in preview images
-    cmd = ['pdftocairo', path, images_base_name, '-jpeg', '-scale-to', size]
+    cmd = ['docker', 'run', '-t', '-v', dist + ':/presentation',
+           '--networking=false', 'slidelint/box', 'pdftocairo',
+           '/presentation/' + file_name, '/presentation/preview-page',
+           '-jpeg', '-scale-to', size]
+
     retcode = subprocess.call(cmd, timeout=timeout)
     if retcode != 0:
         raise IOError("Can't create presentation preview")
@@ -79,7 +84,7 @@ def get_pdf_file_preview(path, size='300', timeout=600):
 
 
 def peform_slides_linting(presentation_path, config_path=None,
-                          slidelint='slidelint', timeout=1200):
+                          slidelint_cmd_pattern='slidelint', timeout=1200):
     """
     function takes:
         * location to pdf file to check with slidelint
@@ -105,11 +110,13 @@ def peform_slides_linting(presentation_path, config_path=None,
     logging.debug("run slidelint check")
     results_path = presentation_path + '.res'  # where to store check results
 
+    presentation_location, presentation_name = os.path.split(presentation_path)
+    slidelint = slidelint_cmd_pattern.format(
+        presentation_location=presentation_location,
+        presentation_name=presentation_name,
+        config_path=config_path)
     # making command to execute
-    cmd = [slidelint, '-f', 'json', '--files-output=%s' % results_path]
-    if config_path:
-        cmd.append('--config=%s' % config_path)
-    cmd.append(presentation_path)
+    cmd = split(slidelint)
 
     # Running slidelint checking against presentation.
     process = subprocess.Popen(
@@ -119,7 +126,7 @@ def peform_slides_linting(presentation_path, config_path=None,
         stderr=subprocess.PIPE,
         universal_newlines=True,)
     try:
-        _, errs = process.communicate(timeout=timeout)  #pylint: disable=E1123
+        _, errs = process.communicate(timeout=timeout)  # pylint: disable=E1123
     except subprocess.TimeoutExpired:
         process.kill()
         # _, errs = process.communicate()  # this may cause hangs
@@ -158,7 +165,7 @@ def store_for_debug(job, exp, debug_storage, debug_url):
 def worker(
         producer_chanel,
         collector_chanel,
-        slidelint_path,
+        slidelint_cmd_pattern,
         debug_storage,
         debug_url,
         one_time_worker=False):
@@ -184,7 +191,7 @@ def worker(
             config_file = SLIDELINT_CONFIG_FILES_MAPPING.get(
                 job['checking_rule'], None)
             slidelint_output = peform_slides_linting(
-                job['file_path'], config_file, slidelint_path)
+                job['file_path'], config_file, slidelint_cmd_pattern)
             icons = get_pdf_file_preview(job['file_path'])
             result['result'] = slidelint_output
             result['icons'] = icons
