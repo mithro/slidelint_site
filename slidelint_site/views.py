@@ -54,14 +54,14 @@ def main_view(context, request):
     validation_error = validate_rule(rule)
     if validation_error:
         request.response.status_code = 400
-        return validation_error
+        return Response(render('json', validation_error, request))
 
     max_allowed_size = int(settings.get('max_allowed_size', 15000000))
     upload_file = request.POST.get('file', None)
     validation_error = validate_upload_file(upload_file, max_allowed_size)
     if validation_error:
         request.response.status_code = 400
-        return validation_error
+        return Response(render('json', validation_error, request))
 
     jobs_manager = settings['jobs_manager']
     info = jobs_manager.add_new_job(upload_file.file, rule)

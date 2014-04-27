@@ -119,10 +119,10 @@ def peform_slides_linting(presentation_path, config_path=None,
         stderr=subprocess.PIPE,
         universal_newlines=True,)
     try:
-        _, errs = process.communicate(timeout=timeout)
+        _, errs = process.communicate(timeout=timeout)  #pylint: disable=E1123
     except subprocess.TimeoutExpired:
         process.kill()
-        _, errs = process.communicate()
+        # _, errs = process.communicate()  # this may cause hangs
         raise TimeoutError(
             "Program failed to finish within %s seconds!" % timeout)
     if process.returncode != 0:
@@ -154,6 +154,7 @@ def store_for_debug(job, exp, debug_storage, debug_url):
     logging.error(msg, link, exp)
 
 
+# pylint: disable=R0913,R0914
 def worker(
         producer_chanel,
         collector_chanel,
