@@ -18,7 +18,7 @@
 
   <div class="row">
     <div class="col-md-offset-2 col-md-7">
-      <div class="{{uploading_progress!=100 && 'lead text-primary' || 'text-muted'}}">
+      <div ng-show="uploading_progress>100">
         Uploading in progress:
         <div class="progress progress-striped {{uploading_progress==100 && 'mutted' || 'active'}}">
           <div class="progress-bar upload-progressbar"
@@ -30,7 +30,7 @@
           </div>
         </div>
       </div>
-      <div class="{{uploading_progress==100 && 'lead text-primary' || 'text-muted'}}">
+      <div ng-show="uploading_progress<=100">
         <div>
           <p>
             {{uploading_complete}}
