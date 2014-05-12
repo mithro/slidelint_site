@@ -84,7 +84,7 @@ def get_pdf_file_preview(path, size='300', timeout=600):
 
 
 def peform_slides_linting(presentation_path, config_path=None,
-                          slidelint_cmd_pattern='slidelint', timeout=1200):
+                          slidelint_cmd_pattern=None, timeout=1200):
     """
     function takes:
         * location to pdf file to check with slidelint
@@ -107,6 +107,13 @@ def peform_slides_linting(presentation_path, config_path=None,
          ]
 
     """
+    if slidelint_cmd_pattern is None:
+        slidelint_cmd_pattern = \
+            'slidelint '\
+            '-f json '\
+            '--files-output={presentation_location}/{presentation_name}.res ' \
+            '--config={config_path} '\
+            '{presentation_location}/{presentation_name}'
     logging.debug("run slidelint check")
     results_path = presentation_path + '.res'  # where to store check results
 
@@ -190,8 +197,14 @@ def worker(
         try:
             config_file = SLIDELINT_CONFIG_FILES_MAPPING.get(
                 job['checking_rule'], None)
-            slidelint_output = peform_slides_linting(
-                job['file_path'], config_file, slidelint_cmd_pattern)
+            try:
+                # This try-except is for preforming linting second time in
+                # case if first time it's failed
+                slidelint_output = peform_slides_linting(
+                    job['file_path'], config_file, slidelint_cmd_pattern)
+            except:
+                slidelint_output = peform_slides_linting(
+                    job['file_path'], config_file, slidelint_cmd_pattern)
             icons = get_pdf_file_preview(job['file_path'])
             result['result'] = slidelint_output
             result['icons'] = icons
