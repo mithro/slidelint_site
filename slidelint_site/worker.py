@@ -25,9 +25,11 @@ MESSAGE_FOR_TIMEOUT_EXCEPTION = \
 MESSAGE_FOR_UNEXPECTED_EXCEPTION = \
     'Sorry, but our service has failed to check your presentation.'
 
+DEFAULT_CONFIG_PATH = os.path.join(HERE, 'slidelint_config_files')
+
 SLIDELINT_CONFIG_FILES_MAPPING = {
-    'simple': os.path.join(HERE, 'slidelint_config_files', 'simple.cfg'),
-    'strict': os.path.join(HERE, 'slidelint_config_files', 'strict.cfg')}
+    'simple': os.path.join(DEFAULT_CONFIG_PATH, 'simple.cfg'),
+    'strict': os.path.join(DEFAULT_CONFIG_PATH, 'strict.cfg')}
 
 
 def remove_parrent_folder(file_path):
@@ -121,7 +123,8 @@ def peform_slides_linting(presentation_path, config_path=None,
     slidelint = slidelint_cmd_pattern.format(
         presentation_location=presentation_location,
         presentation_name=presentation_name,
-        config_path=config_path)
+        config_path=config_path,
+        default_config_path=DEFAULT_CONFIG_PATH)
     # making command to execute
     cmd = split(slidelint)
 
@@ -175,6 +178,7 @@ def worker(
         slidelint_cmd_pattern,
         debug_storage,
         debug_url,
+        config_files_mapping,
         one_time_worker=False):
     """
     receives jobs and perform slides linting
@@ -194,9 +198,8 @@ def worker(
         job = consumer_receiver.recv_json()
         logging.debug("new job with uid '%s'" % job['uid'])
         result = {'uid': job['uid'], 'status_code': 500}
+        config_file = config_files_mapping.get(job['checking_rule'], None)
         try:
-            config_file = SLIDELINT_CONFIG_FILES_MAPPING.get(
-                job['checking_rule'], None)
             try:
                 # This try-except is for preforming linting second time in
                 # case if first time it's failed
@@ -263,4 +266,8 @@ def worker_cli():
     onetime = args['--onetime'] or worker_config['onetime']
     debug_storage = args['--debug_storage'] or worker_config['debug_storage']
     debug_url = args['--debug_url'] or worker_config['debug_url']
-    worker(collector, producer, slidelint, debug_storage, debug_url, onetime)
+    config_files_mapping = 'config_files_mapping' in config \
+        and dict(config['config_files_mapping']) \
+        or SLIDELINT_CONFIG_FILES_MAPPING
+    worker(collector, producer, slidelint, debug_storage, debug_url,
+           config_files_mapping, onetime)

@@ -6,6 +6,10 @@ onetime=${onetime}
 debug_storage=${debug_storage}
 debug_url=${debug_url}
 
+[config_files_mapping]
+strict = /config/strict.cfg
+simple = /config/simple.cfg
+
 [loggers]
 keys=root
 
