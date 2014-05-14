@@ -18,9 +18,9 @@
 
   <div class="row">
     <div class="col-md-offset-2 col-md-7">
-      <div ng-show="uploading_progress>100">
+      <div ng-show="uploading_progress<100">
         Uploading in progress:
-        <div class="progress progress-striped {{uploading_progress==100 && 'mutted' || 'active'}}">
+        <div class="progress progress-striped active">
           <div class="progress-bar upload-progressbar"
                role="progressbar"
                aria-valuenow="{{uploading_progress}}"
@@ -30,12 +30,11 @@
           </div>
         </div>
       </div>
-      <div ng-show="uploading_progress<=100">
+      <div ng-show="uploading_progress>=100">
         <div>
           <p>
             {{uploading_complete}}
-            <img ng-show="uploading_progress==100" src="/static/img/wait-animated.gif"/>
-            <img ng-show="uploading_progress!=100" src="/static/img/wait-static.gif"/>
+            <img src="/static/img/wait-animated.gif"/>
             Presentation checking may take a while, be patient...
           </p>
         </div>
