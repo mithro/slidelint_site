@@ -3,6 +3,10 @@ extends =
 #     profiles/production.cfg
 #     profiles/devel.cfg
 
+
+[instance_config]
+server_port = 8080
+
 [mailing_config]
 mailloger_from = notification@example.com
 mailloger_to = manager@example.com
