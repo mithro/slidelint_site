@@ -1,3 +1,9 @@
+[circus]
+statsd = True
+httpd = True
+httpd_host = localhost
+httpd_port = 6701
+
 [watcher:worker]
 cmd = ${worker} ${worker_config}
 numprocesses = 6
