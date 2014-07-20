@@ -1,0 +1,54 @@
+$ttl 38400
+%(domain)s.	IN	SOA	%(domain)s. mithro.mithis.com. (
+			%(stamp)s
+			10800
+			3600
+			604800
+			38400 )
+%(domain)s.		IN	NS	ns1.mithis.com.
+%(domain)s.		IN	NS	ns2.mithis.com.
+
+; localhost addresses
+localhost		IN	A	127.0.0.1
+localhost		IN	AAAA	::1
+ip6-localhost		IN	AAAA	::1
+ip6-loopback		IN	AAAA	::1
+ip6-localnet		IN	AAAA	fe00::0
+ip6-mcastprefix		IN	AAAA	ff00::0
+ip6-allnodes		IN	AAAA	ff02::1
+ip6-allrouters		IN	AAAA	ff02::2
+ip6-allhosts		IN	AAAA	ff02::3
+
+; Developement site
+dev			IN	AAAA	2001:44b8:31dc:8d00:5054:ff:fe6f:c838
+dev			IN	TXT	"Development / testing version."
+
+; Production site - FIXME(mithro): Actually get a production server
+
+; Naked domain
+%(domain)s.		IN	A 	127.0.0.1
+%(domain)s.		IN	AAAA	::1
+%(domain)s.		IN	TXT	"A tool for checking of issues in your presentation slides."
+
+; Frontend
+www			IN	A	127.0.0.1
+www			IN	AAAA	::1
+www			IN	TXT	"A tool for checking of issues in your presentation slides."
+
+; Workers - FIXME(mithro): Actually get some workers and put them here
+worker-a		IN	A	127.0.0.1
+worker-a		IN	AAAA	::1
+worker-b		IN	A	127.0.0.1
+worker-b		IN	AAAA	::1
+
+; Google Apps 4 Your Domain - Mail Setup
+;%(domain)s.		IN	MX	10 ASPMX.L.GOOGLE.COM.
+;%(domain)s.		IN	MX	20 ALT1.ASPMX.L.GOOGLE.COM.
+;%(domain)s.		IN	MX	20 ALT2.ASPMX.L.GOOGLE.COM.
+;%(domain)s.		IN	MX	30 ASPMX2.GOOGLEMAIL.COM.
+;%(domain)s.		IN	MX	30 ASPMX3.GOOGLEMAIL.COM.
+
+;%(domain)s.		IN	TXT	"v=spf1 include:aspmx.googlemail.com include:mail.mithis.com ~all"
+;_domainkey              IN      TXT     "t=y; o=~"
+;google._domainkey	IN	TXT	"v=DKIM1; k=rsa; t=y; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCnWlKs1qyqcQjyxRn2Nm+ihDDIuxckLfvqitgDcr6bHjO6JD4N2cZTLTZEWmJjEgdd57Ri+5Fv0agEKSznHTAV5jDm0cQ+GLDogc+bMQGUXXdIqMOcKj5UbG42HJYgRDvU76StxNgVsa6eSUdyjVcfwUIKN/G86xhlnK+OzaqCRQIDAQAB"
+;_dmarc			IN	TXT	"v=DMARC1; p=quarantine\; pct=100\; rua=mailto:postmaster@%(domain)s"
