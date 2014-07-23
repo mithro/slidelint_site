@@ -1,4 +1,4 @@
-# slidelint Site
+# Slidelint Site
 
 slidelint site allows users to check theirs presentation with [slidelint](
 https://github.com/enkidulan/slidelint) through web interface on-line.
@@ -28,7 +28,7 @@ In Ubuntu you can install them with the following command
 apt-get install python3-dev libevent-dev libzmq3-dev
 ```
 
-To install Docker take a look at its installation instruction at https://docs.docker.com/ 
+To install Docker take a look at its installation instruction at https://docs.docker.com/
 
 Once the requirements are installed, you can use buildout to get the Python
 dependencies. See the example below:
@@ -84,7 +84,7 @@ server_port = 8080
 ```
 
 Please note that all section in buildout.cfg are just shortcuts to make setup
-easier, to see all available options take a look at ![base.cfg](profiles/base.cfg)
+easier, to see all available options take a look at [base.cfg](profiles/base.cfg)
 file at sections instance_config, mailing_config, circus_config and worker_config.
 
 # Site Structure
@@ -142,7 +142,7 @@ Overall, the system works like follows;
 
 ### Queue Manager
 
-Code for the Queue Manager is in ![queue_manager](slidelint_site/queue_manager.py)
+Code for the Queue Manager is in [queue_manager](slidelint_site/queue_manager.py)
 
 It's a python queue that use zmq
 [Divide-and-Conquer model](http://zguide.zeromq.org/page:all#Divide-and-Conquer)
@@ -155,25 +155,25 @@ even on other machine.
 ## Workers
 
 Files related to workers:
- * ![slidelint_site/slidelint_site/worker.py](slidelint_site/slidelint_site/worker.py)
- * ![slidelint_site/slidelint_site/utils.py](slidelint_site/slidelint_site/utils.py)
+ * [slidelint_site/slidelint_site/worker.py](slidelint_site/slidelint_site/worker.py)
+ * [slidelint_site/slidelint_site/utils.py](slidelint_site/slidelint_site/utils.py)
 
-As the worker could be on it's own machine, the worker uses its own
+As the worker could be on its own machine, the worker uses its own
 configuration file.
 
 For our system:
- * Each worker is "trowed away" after it has completed a job.
- * Multiple workers are running at the same time(the number of workers can be
+ * Each worker is "throwed away" after it has completed a job.
+ * Multiple workers are running at the same time (the number of workers can be
    configured on circus_config section - workers_number)
 
 
 ### "throw away" each worker after it has completed a job
 
-![Circus](http://circus.readthedocs.org/en/latest/) is used for managing workers.
+[Circus](http://circus.readthedocs.org/en/latest/) is used for managing workers.
 It allows not only control a number of running processes, but also a lot of
-other things like max_age of worker and ![others](https://circus.readthedocs.org/en/0.9.2/configuration/).
-Basically Circus start a new worker in when some of running workers died
-("trowed away") and make sure that it is always the configured number of workers
+other things like max_age of worker and [others](https://circus.readthedocs.org/en/0.9.2/configuration/).
+Basically Circus starts a new worker in when some of running workers died
+("throwed away") and make sure that it is always the configured number of workers
  are available.
 
 
@@ -217,7 +217,7 @@ There are also error logs in the `var` directory:
 Incoming documents which cause issues will be saved to `debug_storage`
 directory for review with details about what happened.
 
-People can aso reports errors via a feedback form.
+People can also reports errors via a feedback form.
 
 ## SMTP logging handler
 
@@ -253,5 +253,5 @@ which looks like:
 
 # Validators
 
-There are file size and file type validators at front-end(check file type and size before uploading) and back-end(won't upload more than allowed).
-The max file size limit is configured by max_allowed_size variable in instance_config section(size is in bytes).
+There are file size and file type validators at front-end (check file type and size before uploading) and back-end(won't upload more than allowed).
+The max file size limit is configured by max_allowed_size variable in instance_config section (size is in bytes).
