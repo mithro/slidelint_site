@@ -12,7 +12,7 @@ This repository contain buildout and sources for slidelint site.
 The slidelint site is written in **Python 3**.
  * Python 3.3 (3.2 is too old and 3.4 is currently too new and not compatible with Circus)
  * ZMQ 4 (or newer)
- * ????
+ * Docker
 
 slidelint_site is developed and tested on Ubuntu Trusty. Your milage on other
 Linux systems and Ubuntu versions may vary.
@@ -21,12 +21,14 @@ The site requires the packages are installed on your system:
  * python3-devel
  * libevent-devel
  * zeromq3-devel
- * docker??
+ * docker
 
 In Ubuntu you can install them with the following command
 ```bash
 apt-get install python3-dev libevent-dev libzmq3-dev
 ```
+
+To install Docker take a look at its installation instruction at https://docs.docker.com/ 
 
 Once the requirements are installed, you can use buildout to get the Python
 dependencies. See the example below:
