@@ -1,6 +1,6 @@
 [watcher:worker]
 cmd = ${worker} ${worker_config}
-numprocesses = 6
+numprocesses = ${workers_number}
 
 copy_env = True
 
