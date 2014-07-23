@@ -122,10 +122,7 @@ Files related to front-end:
 
 Linting process is three steps:
 
- 1. Showing visitor a file uploading form (also file type
-    and size is validating on this step - before and after file uploading;
-    the max file size limit is configured by max_allowed_size in instance_config
-    section).
+ 1. Showing visitor a file uploading form.
  2. Showing awaiting form (and sending file to server, and waiting for
     results).
  3. Showing slide linting results (and in case if something goes wrong
@@ -256,10 +253,5 @@ which looks like:
 
 # Validators
 
-Add file size and file type validators to front-end and back-end
-
-Added validators with following commits:
-
- * back-end validators: 9de688d7be51a133043da3a4a370dbd2c871e1c1
- * front-end validation 3fd468e114660ebb017159d56de38ff8c815ba0c
- * front-end validators: 77e010cb6a5532f4904c5150e97c2abc4ede9adc
+There are file size and file type validators at front-end(check file type and size before uploading) and back-end(won't upload more than allowed).
+The max file size limit is configured by max_allowed_size variable in instance_config section(size is in bytes).
