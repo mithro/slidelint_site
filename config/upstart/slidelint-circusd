@@ -1,0 +1,12 @@
+# vim: set syntax=upstart:
+description "slidelint website circusd"
+
+start on filesystem and net-device-up IFACE=lo
+stop on runlevel [016]
+
+respawn
+exec /home/slidelint/slidelint_site/bin/circusd \
+ --log-output /home/slidelint/slidelint_site/var/slidelint-circus \
+ --pidfile /home/slidelint/slidelint_site/var/circusd.pid \
+ /home/slidelint/slidelint_site/circusd.ini
+
