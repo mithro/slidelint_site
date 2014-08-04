@@ -255,3 +255,64 @@ which looks like:
 
 There are file size and file type validators at front-end (check file type and size before uploading) and back-end(won't upload more than allowed).
 The max file size limit is configured by max_allowed_size variable in instance_config section (size is in bytes).
+
+# Slidelint docker image setup
+
+If you don't familiar with docker take this tutorial first - https://docker.com/tryit/#
+
+Clone base image from docker repository:
+
+```bash
+docker pull ubuntu
+```
+
+Run bash session on targeted docker image:
+
+```bash
+docker run  -t -i ubuntu bash
+```
+
+Install slidelint dependencies slidelint itself(for more details about slidelint take a look at https://github.com/enkidulan/slidelint):
+
+```
+apt-get update
+apt-get install openjdk-7-jre zlib1g-dev libxml2-dev libxslt-dev python-lxml python-dev poppler-utils poppler-data python-pip
+pip install https://github.com/enkidulan/slidelint/archive/master.tar.gz
+```
+
+So slidelint is installed and now you need to commit your changes. Interrupt attached bash session by pressing ctrl+D and save changes to image with name 'ubuntu:slidelint':
+```bash
+$ docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+f3fc9830bc81        ubuntu:14.04        bash                48 minutes ago      Exit 130                                angry_galileo
+
+$ docker commit -m "installed slidelint" f3fc9830bc81 ubuntu:slidelint
+```
+
+That's all. So if you have presentation located in /home/default_user/presentations/p3_howto_create_pdf_presentation.pdf
+you can check it inside docker 'ubuntu:slidelint' container simply by run following command:
+
+```bash
+ $ docker run -t -v /home/default_user/presentations:/presentation --networking=false ubuntu:slidelint slidelint /presentation/p3_howto_create_pdf_presentation.pdf
+ No config file found, using default configuration
+********************** Slide Deck p3_howto_create_pdf_presentation.pdf
+C:Slide 1: Too close to edges: Text should not appear closer than 1/16.0th of the page size to the edges. (too-close-to-edges)
+C:Slide 2: Too close to edges: Text should not appear closer than 1/16.0th of the page size to the edges. (too-close-to-edges)
+C:Slide 3: Too close to edges: Text should not appear closer than 1/16.0th of the page size to the edges. (too-close-to-edges)
+C:Slide 4: Too close to edges: Text should not appear closer than 1/16.0th of the page size to the edges. (too-close-to-edges)
+C:Slide 1: Font is to small: Text should take up a minimum of 1/6.0th the page. (font-to-small)
+C:Slide 2: Font is to small: Text should take up a minimum of 1/6.0th the page. (font-to-small)
+C:Slide 3: Font is to small: Text should take up a minimum of 1/6.0th the page. (font-to-small)
+C:Slide 4: Font is to small: Text should take up a minimum of 1/6.0th the page. (font-to-small)
+C:Slide 1: grammar - Possible agreement error. The noun 'guide' seems to be countable, so consider using: 'guides'. (CD_NN)
+C:Slide 1: style - Three successive sentences begin with the same word. Reword the sentence or use a thesaurus to find a synonym. (ENGLISH_WORD_REPEAT_BEGINNING_RULE)
+C:Slide 2: grammar - Possible agreement error. The noun 'guide' seems to be countable, so consider using: 'guides'. (CD_NN)
+C:Slide 2: misspelling - Possible spelling mistake found (EN_CONTRACTION_SPELLING)
+C:Slide 3: grammar - Possible agreement error. The noun 'guide' seems to be countable, so consider using: 'guides'. (CD_NN)
+C:Slide 3: misspelling - Possible spelling mistake found (MORFOLOGIK_RULE_EN_US)
+C:Slide 3: misspelling - Possible spelling mistake found (MORFOLOGIK_RULE_EN_US)
+C:Slide 3: typographical - Possible typo: apostrophe is missing. Did you mean 'options'' or 'option's'? (POSSESIVE_APOSTROPHE)
+C:Slide 3: whitespace - Don't put a space before the full stop (COMMA_PARENTHESIS_WHITESPACE)
+C:Slide 4: grammar - Possible agreement error. The noun 'guide' seems to be countable, so consider using: 'guides'. (CD_NN)
+C:Slide 4: typographical - Possible typo: apostrophe is missing. Did you mean 'options'' or 'option's'? (POSSESIVE_APOSTROPHE)
+```
