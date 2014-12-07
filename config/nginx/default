@@ -1,3 +1,4 @@
+# vim: set syntax=nginx:
 map $http_upgrade $connection_upgrade {
 	default	upgrade;
 	''	close;
@@ -8,6 +9,7 @@ server {
 	listen [::]:80 default_server ipv6only=on;
 
 	location / {
+		client_max_body_size	1G;
 		proxy_pass		http://127.0.0.1:8080;
 		proxy_redirect		off;
 		proxy_buffering		off;
@@ -17,4 +19,30 @@ server {
 		proxy_set_header	X-Forwarded-For		$proxy_add_x_forwarded_for;
 		proxy_set_header	X-Forwarded-Proto	http;
 	}
+
+	location /static {
+		root /home/slidelint/slidelint_site/slidelint_site;
+	}
+
+	location /debug {
+		alias /home/slidelint/slidelint_site/debug_storage;
+		autoindex on;
+		auth_basic "Restricted";
+		auth_basic_user_file /home/slidelint/slidelint_site/debug_storage/.htpasswd;
+	}
+
+        error_page 500 502 503 504 /500.html;
+        location = /500.html {
+            root /home/slidelint/slidelint_site/slidelint_site/static;
+        }
+}
+
+server {
+	server_name code.slidelint.net c.slidelint.net;
+	return 301 $scheme://github.com/timvideos/slidelint_site$request_uri;
+}
+
+server {
+	server_name bugs.slidelint.net b.slidelint.net;
+	return 301 $scheme://github.com/timvideos/slidelint_siteissues/new;
 }
