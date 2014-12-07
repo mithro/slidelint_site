@@ -1,7 +1,7 @@
 # Slidelint Site
 
 slidelint site allows users to check theirs presentation with [slidelint](
-https://github.com/enkidulan/slidelint) through web interface on-line.
+https://github.com/timvideos/slidelint) through web interface on-line.
 
 This repository contain buildout and sources for slidelint site.
 
@@ -14,7 +14,7 @@ The slidelint site is written in **Python 3**.
  * ZMQ 4 (or newer)
  * Docker
 
-slidelint_site is developed and tested on Ubuntu Trusty. Your milage on other
+slidelint-site is developed and tested on Ubuntu Trusty. Your mileage on other
 Linux systems and Ubuntu versions may vary.
 
 The site requires the packages are installed on your system:
@@ -272,15 +272,18 @@ Run bash session on targeted docker image:
 docker run  -t -i ubuntu bash
 ```
 
-Install slidelint dependencies slidelint itself(for more details about slidelint take a look at https://github.com/enkidulan/slidelint):
+Install slidelint dependencies slidelint itself(for more details about slidelint take a look at https://github.com/timvideos/slidelint):
 
 ```
 apt-get update
 apt-get install openjdk-7-jre zlib1g-dev libxml2-dev libxslt-dev python-lxml python-dev poppler-utils poppler-data python-pip
-pip install https://github.com/enkidulan/slidelint/archive/master.tar.gz
+pip install https://github.com/timvideos/slidelint/archive/master.tar.gz
 ```
 
-So slidelint is installed and now you need to commit your changes. Interrupt attached bash session by pressing ctrl+D and save changes to image with name 'ubuntu:slidelint':
+So slidelint is installed and now you need to commit your changes. Interrupt
+attached bash session by pressing ctrl+D and save changes to image with name
+'ubuntu:slidelint':
+
 ```bash
 $ docker ps -l
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
@@ -289,8 +292,11 @@ f3fc9830bc81        ubuntu:14.04        bash                48 minutes ago      
 $ docker commit -m "installed slidelint" f3fc9830bc81 ubuntu:slidelint
 ```
 
-That's all. So if you have presentation located in /home/default_user/presentations/p3_howto_create_pdf_presentation.pdf
-you can check it inside docker 'ubuntu:slidelint' container simply by run following command:
+That's all. 
+
+So if you have presentation located in /home/default_user/presentations/p3_howto_create_pdf_presentation.pdf
+you can check it inside docker 'ubuntu:slidelint' container simply by run
+following command:
 
 ```bash
  $ docker run -t -v /home/default_user/presentations:/presentation --networking=false ubuntu:slidelint slidelint /presentation/p3_howto_create_pdf_presentation.pdf
