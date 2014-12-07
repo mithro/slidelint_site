@@ -45,14 +45,9 @@ worker-a		IN	AAAA	::1
 worker-b		IN	A	127.0.0.1
 worker-b		IN	AAAA	::1
 
-; Google Apps 4 Your Domain - Mail Setup
-;%(domain)s.		IN	MX	10 ASPMX.L.GOOGLE.COM.
-;%(domain)s.		IN	MX	20 ALT1.ASPMX.L.GOOGLE.COM.
-;%(domain)s.		IN	MX	20 ALT2.ASPMX.L.GOOGLE.COM.
-;%(domain)s.		IN	MX	30 ASPMX2.GOOGLEMAIL.COM.
-;%(domain)s.		IN	MX	30 ASPMX3.GOOGLEMAIL.COM.
-
-;%(domain)s.		IN	TXT	"v=spf1 include:aspmx.googlemail.com include:mail.mithis.com ~all"
-;_domainkey              IN      TXT     "t=y; o=~"
-;google._domainkey	IN	TXT	"v=DKIM1; k=rsa; t=y; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCnWlKs1qyqcQjyxRn2Nm+ihDDIuxckLfvqitgDcr6bHjO6JD4N2cZTLTZEWmJjEgdd57Ri+5Fv0agEKSznHTAV5jDm0cQ+GLDogc+bMQGUXXdIqMOcKj5UbG42HJYgRDvU76StxNgVsa6eSUdyjVcfwUIKN/G86xhlnK+OzaqCRQIDAQAB"
-;_dmarc			IN	TXT	"v=DMARC1; p=quarantine\; pct=100\; rua=mailto:postmaster@%(domain)s"
+; Mailgun outbound email configuration.
+%(domain)s.		IN	TXT	"v=spf1 include:mailgun.org ~all"
+smtp._domainkey		IN	TXT	"k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDwPIBZERdEmQYN2hV7cu8o4qJcQ/9mJwPJyQHTg4Mc4sHyq10rC7PcFUjxU6gSJujtzoeYUfeFJiByyE6M1fPlZzdptlKarbldU9jAcqqc6Y6f5IRC2/4Cosn/S29AIkJiWbhIbowQrxfSqhQP1S6923gsJHITfaksSAoMEaFFmQIDAQAB"
+email			IN	CNAME	mailgun.org.
+%(domain)s.		IN	MX	10 mxa.mailgun.org.
+%(domain)s.		IN	MX	20 mxb.mailgun.org.
