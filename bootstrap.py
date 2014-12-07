@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 ##############################################################################
 #
 # Copyright (c) 2006 Zope Foundation and Contributors.
@@ -22,6 +23,8 @@ import os
 import shutil
 import sys
 import tempfile
+
+assert sys.version_info.major == 3, "Run under Python 3!"
 
 from optparse import OptionParser
 
