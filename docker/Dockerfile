@@ -19,7 +19,7 @@ RUN \
     python-dev \
     python-lxml \
     python-pip \
-    zlib1g-dev \
+    zlib1g-dev
 
 # Upgrade setuptools because of bootstrap weirdness
 RUN \
