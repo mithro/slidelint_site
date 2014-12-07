@@ -23,17 +23,21 @@ ip6-allhosts		IN	AAAA	ff02::3
 dev			IN	AAAA	2001:44b8:31dc:8d00:5054:ff:fe6f:c838
 dev			IN	TXT	"Development / testing version."
 
-; Production site - FIXME(mithro): Actually get a production server
+; Production site
+prod			IN	A 	104.130.162.159
+prod			IN	AAAA	2001:4802:7801:104:be76:4eff:fe20:7a0
+prod			IN	TXT	"A tool for checking of issues in your presentation slides."
 
-; Naked domain
-%(domain)s.		IN	A 	127.0.0.1
-%(domain)s.		IN	AAAA	::1
+; Naked domain - keep this the same as production
+%(domain)s.		IN	A 	104.130.162.159
+%(domain)s.		IN	AAAA	2001:4802:7801:104:be76:4eff:fe20:7a0
 %(domain)s.		IN	TXT	"A tool for checking of issues in your presentation slides."
 
 ; Frontend
-www			IN	A	127.0.0.1
-www			IN	AAAA	::1
-www			IN	TXT	"A tool for checking of issues in your presentation slides."
+www			IN	CNAME	prod
+
+; Redirects
+*			IN	CNAME	prod
 
 ; Workers - FIXME(mithro): Actually get some workers and put them here
 worker-a		IN	A	127.0.0.1
