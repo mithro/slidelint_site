@@ -1,7 +1,29 @@
 [watcher:worker]
 cmd = ${worker} ${worker_config}
-numprocesses = 6
+numprocesses = ${workers_number}
+
+copy_env = True
+
+stdout_stream.class = FileStream
+stdout_stream.filename = var/workers.log
+stdout_stream.max_bytes = 104857600
+stdout_stream.backup_count = 10
+stderr_stream.class = FileStream
+stderr_stream.filename = var/worker_errors.log
+stderr_stream.max_bytes = 104857600
+stderr_stream.backup_count = 10
+
 
 [watcher:site]
 cmd = ${buildout_dir}/bin/pserve ${buildout_dir}/.instance.ini
 numprocesses = 1
+
+stdout_stream.class = FileStream
+stdout_stream.filename = var/site.log
+stdout_stream.max_bytes = 104857600
+stdout_stream.backup_count = 10
+
+stderr_stream.class = FileStream
+stderr_stream.filename = var/site_errors.log
+stderr_stream.max_bytes = 104857600
+stderr_stream.backup_count = 10

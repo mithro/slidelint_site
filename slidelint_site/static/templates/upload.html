@@ -41,13 +41,13 @@
     <div class="col-md-2 pull-left text-left">
       <div class="radio">
         <label>
-          <input type="radio" name="rulesset" id="simple" ng-model="check_rule" value="simple" checked>
+          <input type="radio" name="rulesset" id="simple" ng-model="$parent.check_rule" value="simple">
             Simple
         </label>
       </div>
       <div class="radio">
         <label>
-          <input type="radio" name="rulesset" id="strict" ng-model="check_rule" value="strict">
+          <input type="radio" name="rulesset" id="strict" ng-model="$parent.check_rule" value="strict">
             Strict
         </label>
       </div>

@@ -11,6 +11,7 @@ import itertools
 import shutil
 import zmq
 from .utils import save_file
+from shlex import split
 
 import logging
 
@@ -24,9 +25,11 @@ MESSAGE_FOR_TIMEOUT_EXCEPTION = \
 MESSAGE_FOR_UNEXPECTED_EXCEPTION = \
     'Sorry, but our service has failed to check your presentation.'
 
+DEFAULT_CONFIG_PATH = os.path.join(HERE, 'slidelint_config_files')
+
 SLIDELINT_CONFIG_FILES_MAPPING = {
-    'simple': os.path.join(HERE, 'slidelint_config_files', 'simple.cfg'),
-    'strict': os.path.join(HERE, 'slidelint_config_files', 'strict.cfg')}
+    'simple': os.path.join(DEFAULT_CONFIG_PATH, 'simple.cfg'),
+    'strict': os.path.join(DEFAULT_CONFIG_PATH, 'strict.cfg')}
 
 
 def remove_parrent_folder(file_path):
@@ -59,11 +62,15 @@ def get_pdf_file_preview(path, size='300', timeout=600):
 
     """
     # making base name for preview images
-    dist = path.rsplit(os.path.sep, 1)[0]
+    dist, file_name = path.rsplit(os.path.sep, 1)
     images_base_name = os.path.join(dist, 'preview-page')
 
     # transforming pdf file in preview images
-    cmd = ['pdftocairo', path, images_base_name, '-jpeg', '-scale-to', size]
+    cmd = ['docker', 'run', '-t', '-v', dist + ':/presentation',
+           '--networking=false', 'slidelint/box', 'pdftocairo',
+           '/presentation/' + file_name, '/presentation/preview-page',
+           '-jpeg', '-scale-to', size]
+
     retcode = subprocess.call(cmd, timeout=timeout)
     if retcode != 0:
         raise IOError("Can't create presentation preview")
@@ -79,7 +86,7 @@ def get_pdf_file_preview(path, size='300', timeout=600):
 
 
 def peform_slides_linting(presentation_path, config_path=None,
-                          slidelint='slidelint', timeout=1200):
+                          slidelint_cmd_pattern=None, timeout=1200):
     """
     function takes:
         * location to pdf file to check with slidelint
@@ -102,14 +109,24 @@ def peform_slides_linting(presentation_path, config_path=None,
          ]
 
     """
+    if slidelint_cmd_pattern is None:
+        slidelint_cmd_pattern = \
+            'slidelint '\
+            '-f json '\
+            '--files-output={presentation_location}/{presentation_name}.res ' \
+            '--config={config_path} '\
+            '{presentation_location}/{presentation_name}'
     logging.debug("run slidelint check")
     results_path = presentation_path + '.res'  # where to store check results
 
+    presentation_location, presentation_name = os.path.split(presentation_path)
+    slidelint = slidelint_cmd_pattern.format(
+        presentation_location=presentation_location,
+        presentation_name=presentation_name,
+        config_path=config_path,
+        default_config_path=DEFAULT_CONFIG_PATH)
     # making command to execute
-    cmd = [slidelint, '-f', 'json', '--files-output=%s' % results_path]
-    if config_path:
-        cmd.append('--config=%s' % config_path)
-    cmd.append(presentation_path)
+    cmd = split(slidelint)
 
     # Running slidelint checking against presentation.
     process = subprocess.Popen(
@@ -119,10 +136,10 @@ def peform_slides_linting(presentation_path, config_path=None,
         stderr=subprocess.PIPE,
         universal_newlines=True,)
     try:
-        _, errs = process.communicate(timeout=timeout)
+        _, errs = process.communicate(timeout=timeout)  # pylint: disable=E1123
     except subprocess.TimeoutExpired:
         process.kill()
-        _, errs = process.communicate()
+        # _, errs = process.communicate()  # this may cause hangs
         raise TimeoutError(
             "Program failed to finish within %s seconds!" % timeout)
     if process.returncode != 0:
@@ -154,12 +171,14 @@ def store_for_debug(job, exp, debug_storage, debug_url):
     logging.error(msg, link, exp)
 
 
+# pylint: disable=R0913,R0914
 def worker(
         producer_chanel,
         collector_chanel,
-        slidelint_path,
+        slidelint_cmd_pattern,
         debug_storage,
         debug_url,
+        config_files_mapping,
         one_time_worker=False):
     """
     receives jobs and perform slides linting
@@ -179,11 +198,16 @@ def worker(
         job = consumer_receiver.recv_json()
         logging.debug("new job with uid '%s'" % job['uid'])
         result = {'uid': job['uid'], 'status_code': 500}
+        config_file = config_files_mapping.get(job['checking_rule'], None)
         try:
-            config_file = SLIDELINT_CONFIG_FILES_MAPPING.get(
-                job['checking_rule'], None)
-            slidelint_output = peform_slides_linting(
-                job['file_path'], config_file, slidelint_path)
+            try:
+                # This try-except is for preforming linting second time in
+                # case if first time it's failed
+                slidelint_output = peform_slides_linting(
+                    job['file_path'], config_file, slidelint_cmd_pattern)
+            except:
+                slidelint_output = peform_slides_linting(
+                    job['file_path'], config_file, slidelint_cmd_pattern)
             icons = get_pdf_file_preview(job['file_path'])
             result['result'] = slidelint_output
             result['icons'] = icons
@@ -242,4 +266,8 @@ def worker_cli():
     onetime = args['--onetime'] or worker_config['onetime']
     debug_storage = args['--debug_storage'] or worker_config['debug_storage']
     debug_url = args['--debug_url'] or worker_config['debug_url']
-    worker(collector, producer, slidelint, debug_storage, debug_url, onetime)
+    config_files_mapping = 'config_files_mapping' in config \
+        and dict(config['config_files_mapping']) \
+        or SLIDELINT_CONFIG_FILES_MAPPING
+    worker(collector, producer, slidelint, debug_storage, debug_url,
+           config_files_mapping, onetime)
