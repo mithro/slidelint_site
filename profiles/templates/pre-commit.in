@@ -84,6 +84,8 @@ def checker():
                 continue
             if filename == "setup.py":
                 continue
+            if filename == "bootstrap.py":
+                continue
             python_files.append((filename, None))
             # continue
 
