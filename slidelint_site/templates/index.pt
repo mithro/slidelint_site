@@ -5,7 +5,7 @@
     xmlns:tal="http://xml.zope.org/namespaces/tal"
     ng-app="LinterApp">
 <head>
-  <title>Slidelint checks common problems in presentation slides</title>
+  <title>slidelint - Checks for common problems found in presentation slides</title>
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
   <meta name="keywords" content="presentation slides problems slidelint linting" />
   <meta name="description" content="Web application for slidelint_site" />
