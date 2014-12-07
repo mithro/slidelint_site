@@ -1,7 +1,8 @@
-#! /bin/sh
+#! /bin/bash
 
 STAMP=$((`date +%s` + 1000000000))
 DOMAINS="slidelint.com slidelint.net slide-lint.com slide-lint.net slidechec.kr slidecheck.io slides.tips presenting.tips"
+HAS_PDNS=$(which pdns_control > /dev/null 2>&1; echo $?)
 
 # Generate the BIND style zone files
 for DOMAIN in $DOMAINS; do
@@ -23,15 +24,18 @@ for DOMAIN in $DOMAINS; do
 
 	# Base template
 	echo "Creating the template"
-	cat slidelint.hosts | sed \
+	cat slidelint.hosts $SSHFILE | sed \
           -e"s/%(domain)s/$DOMAIN/ig" \
           -e"s/%(stamp)s/$STAMP/ig" \
 	 > $HOSTFILE
 
-	# SSH Host keys
-	echo "Appending SSH keys"
-	cat $SSHFILE >> $HOSTFILE
+	if [ $HAS_PDNS -eq 0 ]; then
+		pdns_control bind-reload-now $DOMAIN
+	fi
 done
+if [ $HAS_PDNS -eq 0 ]; then
+	pdns_control bind-list-rejects
+fi
 
 # Generate a PowerDNS named.conf (probably compatible with BIND too).
 ZONEROOT=/etc/powerdns/zones/
